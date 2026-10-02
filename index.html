@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ADHD · AI Driven Haptic Design</title>
+  <meta name="description" content="ADHD (AI Driven Haptic Design): native iPhone and iPad apps and games by Cristopher Ramirez, military veteran and AI engineer.">
+  <meta name="theme-color" content="#05060a">
+  <link rel="canonical" href="https://cburr1844.github.io/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ADHD · AI Driven Haptic Design">
+  <meta property="og:title" content="ADHD · AI Driven Haptic Design">
+  <meta property="og:description" content="Native iPhone and iPad apps and games by Cristopher Ramirez, military veteran and AI engineer.">
+  <meta property="og:url" content="https://cburr1844.github.io/">
+  <meta property="og:image" content="https://cburr1844.github.io/assets/og/og-home.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The ADHD wordmark over a glowing field of 0s and 1s">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Animated ASCII/binary aurora field (see adhd.js). Purely decorative. -->
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="hero">
+    <nav class="glass nav">
+      <span class="mark">adhd<span class="caret">_</span></span>
+      <a href="#about">about</a>
+      <a href="#projects">projects</a>
+      <a href="#contact">contact</a>
+    </nav>
+
+    <div class="hero-body">
+      <p class="prompt"><span class="ps1">~/adhd $</span> whoami --hyperfocus<span class="cursor" aria-hidden="true"></span></p>
+      <h1 class="tag-word" data-text="ADHD"><span class="sr-only">ADHD: AI Driven Haptic Design</span><span aria-hidden="true">ADHD</span></h1>
+      <p class="expansion" aria-hidden="true"><span><b>A</b>I</span> <span><b>D</b>riven</span> <span><b>H</b>aptic</span> <span><b>D</b>esign</span></p>
+      <p class="lede">Native apps and games for iPhone and iPad, by Cristopher Ramirez: military veteran and AI engineer.</p>
+      <p class="stack"><span>swift</span><span>swiftui</span><span>spritekit</span></p>
+    </div>
+  </header>
+
+  <main>
+    <section id="about" class="glass panel">
+      <h2><span class="hash">#</span> about</h2>
+      <p>I'm Cristopher Ramirez, a military veteran and an AI engineer. ADHD is my studio, and yes, the name is on purpose. I build native apps and games for iPhone and iPad, with clear interaction and a hand-crafted visual style.</p>
+    </section>
+
+    <section id="projects">
+      <h2 class="section-title"><span class="hash">#</span> projects</h2>
+
+      <article class="project glass">
+        <div class="project-copy">
+          <p class="meta">game · iphone · in development</p>
+          <h3><a href="gate-relay/index.html">Gate Relay</a></h3>
+          <p>A one-touch timing game played in portrait on iPhone. It's built natively with SpriteKit, with art in a ukiyo-e ink and festival style.</p>
+          <p class="open"><a href="gate-relay/index.html"><span class="ps1">$</span> open gate-relay <span aria-hidden="true">&rarr;</span></a></p>
+        </div>
+        <div class="carousel" role="region" aria-label="Gate Relay screenshots and gameplay clips">
+          <div class="ring">
+            <figure class="phone clip"><video muted playsinline loop preload="none" poster="assets/clips/gate-relay-torii.jpg" aria-label="Gate Relay gameplay clip: a torii gate on the sakura stage"><source src="assets/clips/gate-relay-torii.mp4" type="video/mp4"></video></figure>
+            <figure class="phone"><img src="assets/shots/gate-relay-1.jpg" alt="Gate Relay gameplay: prayer-hands gate"></figure>
+            <figure class="phone"><img src="assets/shots/gate-relay-2.jpg" alt="Gate Relay gameplay: katana gate winding up"></figure>
+            <figure class="phone clip"><video muted playsinline loop preload="none" poster="assets/clips/gate-relay-waves.jpg" aria-label="Gate Relay gameplay clip: gates on the wave stage"><source src="assets/clips/gate-relay-waves.mp4" type="video/mp4"></video></figure>
+            <figure class="phone"><img src="assets/shots/gate-relay-4.jpg" alt="Gate Relay gameplay: folding-fan gate"></figure>
+            <figure class="phone"><img src="assets/shots/gate-relay-5.jpg" alt="Gate Relay gameplay: ship surge"></figure>
+          </div>
+          <div class="floor" aria-hidden="true"></div>
+          <a class="carousel-link" href="gate-relay/index.html" aria-label="Open the Gate Relay page"><span>open &rarr;</span></a>
+        </div>
+      </article>
+
+      <article class="project glass flip">
+        <div class="project-copy">
+          <p class="meta">app · iphone &amp; ipad · in development</p>
+          <h3><a href="brain-kata/index.html">Brain Kata</a></h3>
+          <p class="kata-tag">Repeat. Refine. Remember.</p>
+          <p>A native SwiftUI flashcard app for iPhone and iPad. Reviews are scheduled with the FSRS-6 algorithm, and the interface uses woodblock-festival styling.</p>
+          <p class="open"><a href="brain-kata/index.html"><span class="ps1">$</span> open brain-kata <span aria-hidden="true">&rarr;</span></a></p>
+        </div>
+        <div class="carousel" role="region" aria-label="Brain Kata screenshots and clips">
+          <div class="ring">
+            <figure class="phone clip"><video muted playsinline loop preload="none" poster="assets/clips/brain-kata-review.jpg" aria-label="Brain Kata clip: revealing an answer and rating it"><source src="assets/clips/brain-kata-review.mp4" type="video/mp4"></video></figure>
+            <figure class="phone"><img src="assets/shots/brain-kata-1.jpg" alt="Brain Kata: Today screen with cards ready"></figure>
+            <figure class="phone"><img src="assets/shots/brain-kata-3.jpg" alt="Brain Kata: revealed answer with Forgot, Hard, Good and Easy ratings"></figure>
+            <figure class="phone clip"><video muted playsinline loop preload="none" poster="assets/clips/brain-kata-tour.jpg" aria-label="Brain Kata clip: the first-use tour"><source src="assets/clips/brain-kata-tour.mp4" type="video/mp4"></video></figure>
+            <figure class="phone"><img src="assets/shots/brain-kata-4.jpg" alt="Brain Kata: a deck and its cards"></figure>
+            <figure class="phone"><img src="assets/shots/brain-kata-5.jpg" alt="Brain Kata: 30-day progress calendar"></figure>
+          </div>
+          <div class="floor" aria-hidden="true"></div>
+          <a class="carousel-link" href="brain-kata/index.html" aria-label="Open the Brain Kata page"><span>open &rarr;</span></a>
+        </div>
+      </article>
+    </section>
+
+    <section id="contact" class="glass panel">
+      <h2><span class="hash">#</span> contact</h2>
+      <ul class="links">
+        <li><span class="arrow">&gt;</span> <a href="https://github.com/CBURR1844">github.com/CBURR1844</a></li>
+        <li><span class="arrow">&gt;</span> <a href="mailto:cramirez18444@gmail.com">cramirez18444@gmail.com</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer><span class="ps1">$</span> echo "© 2026 ADHD · AI Driven Haptic Design" <span class="sep">·</span> <a href="mailto:cramirez18444@gmail.com">cramirez18444@gmail.com</a></footer>
+
+  <script src="adhd.js"></script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brain Kata · ADHD</title>
+  <meta name="description" content="Brain Kata: Repeat. Refine. Remember. A native spaced-repetition flashcard app for iPhone and iPad by ADHD (AI Driven Haptic Design). In development.">
+  <meta name="theme-color" content="#05060a">
+  <link rel="canonical" href="https://cburr1844.github.io/brain-kata/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ADHD · AI Driven Haptic Design">
+  <meta property="og:title" content="Brain Kata · Repeat. Refine. Remember.">
+  <meta property="og:description" content="A native spaced-repetition flashcard app for iPhone and iPad. In development, not on the App Store yet.">
+  <meta property="og:url" content="https://cburr1844.github.io/brain-kata/">
+  <meta property="og:image" content="https://cburr1844.github.io/assets/og/og-brain-kata.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Brain Kata on iPhone: a revealed answer with Forgot, Hard, Good and Easy ratings">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../app.css">
+</head>
+<body>
+  <!-- Animated ASCII/binary aurora field (see adhd.js). Purely decorative. -->
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="hero app-hero">
+    <nav class="glass nav">
+      <a class="mark" href="../index.html">adhd<span class="caret">_</span></a>
+      <a class="hide-sm" href="#features">features</a>
+      <a class="hide-sm" href="#gallery">gallery</a>
+      <a href="#status">status</a>
+      <a class="back" href="../index.html">&larr; adhd</a>
+    </nav>
+
+    <div class="app-hero-body">
+      <div class="app-hero-copy">
+        <p class="prompt"><span class="ps1">~/adhd/brain-kata $</span> ./review --today<span class="cursor" aria-hidden="true"></span></p>
+        <h1 class="app-title">BRAIN KATA</h1>
+        <p class="kata-tag">Repeat. Refine. Remember.</p>
+        <p class="lede">A native spaced-repetition flashcard app for iPhone and iPad. Recall first, reveal, rate, and come back when it counts.</p>
+        <p class="stack"><span>iphone</span><span>ipad</span><span>swiftui</span><span>fsrs-6</span></p>
+        <p class="status-line"><span class="dot" aria-hidden="true"></span> in development · not on the App Store yet</p>
+      </div>
+      <div class="hero-stage">
+        <figure class="hero-phone">
+          <video muted playsinline loop preload="none" poster="../assets/clips/brain-kata-review.jpg" aria-label="Reviewing a card: reveal the answer, then rate it Forgot, Hard, Good or Easy"><source src="../assets/clips/brain-kata-review.mp4" type="video/mp4"></video>
+          <div class="hero-floor" aria-hidden="true"></div>
+        </figure>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="about" class="glass panel pitch">
+      <h2><span class="hash">#</span> the app</h2>
+      <p>Write a question. When it comes up, try to recall the answer before you reveal it, then say how it went. The FSRS-6 scheduler decides when you'll see that card again, so your practice goes where it's needed and nowhere else.</p>
+      <p>The interface is printed in a woodblock-festival style: paper surfaces, ink outlines and rolling waves, in light and dark.</p>
+    </section>
+
+    <section id="features">
+      <h2 class="section-title"><span class="hash">#</span> features</h2>
+      <div class="features">
+        <article class="feature glass"><h3>Recall first</h3><p>Each card asks you to try before you reveal. Rate Forgot, Hard, Good or Easy, with the next interval shown on every button. Undo is one tap away.</p></article>
+        <article class="feature glass"><h3>FSRS-6 scheduling</h3><p>Reviews are scheduled by the FSRS-6 algorithm with a 90% retention target, and every review is kept in your history.</p></article>
+        <article class="feature glass"><h3>Cards your way</h3><p>Basic, reversed and fill-in-the-blank cards, with images, audio, image masks and offline math equations.</p></article>
+        <article class="feature glass"><h3>Library and Smart Collections</h3><p>Nest decks, search questions, answers and tags, and combine filters into saved views.</p></article>
+        <article class="feature glass"><h3>Bring your material</h3><p>Import existing decks and CSV files, or draft cards from text, PDFs and photos. Nothing is saved until you approve each card.</p></article>
+        <article class="feature glass"><h3>Study tools</h3><p>Read questions and answers aloud, work it out on a scratchpad, or record your voice to compare with a reference.</p></article>
+        <article class="feature glass"><h3>Progress</h3><p>A 30-day practice calendar, a daily goal and optional reminders.</p></article>
+        <article class="feature glass"><h3>Yours, on your device</h3><p>Create and study without an account. Cards are saved on the device, with verified backups and snapshots you can restore.</p></article>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <h2 class="section-title"><span class="hash">#</span> gallery</h2>
+      <div class="gallery glass">
+        <figure><div class="shot"><img src="../assets/shots/brain-kata-1.jpg" alt="Today screen with four cards ready" loading="lazy"></div><figcaption>today</figcaption></figure>
+        <figure><div class="shot"><video muted playsinline loop preload="none" poster="../assets/clips/brain-kata-tour.jpg" aria-label="Clip: the first-use tour, with examples where nothing is saved"><source src="../assets/clips/brain-kata-tour.mp4" type="video/mp4"></video></div><figcaption><span class="tag">clip</span> · the first-use tour</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/brain-kata-2.jpg" alt="Review: a question waiting to be recalled" loading="lazy"></div><figcaption>recall</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/brain-kata-3.jpg" alt="Revealed answer with Forgot, Hard, Good and Easy ratings and their intervals" loading="lazy"></div><figcaption>reveal and rate</figcaption></figure>
+        <figure><div class="shot"><video muted playsinline loop preload="none" poster="../assets/clips/brain-kata-library.jpg" aria-label="Clip: opening a deck from the Library"><source src="../assets/clips/brain-kata-library.mp4" type="video/mp4"></video></div><figcaption><span class="tag">clip</span> · library and decks</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/brain-kata-4.jpg" alt="A deck and its cards" loading="lazy"></div><figcaption>a deck</figcaption></figure>
+        <figure><div class="shot"><video muted playsinline loop preload="none" poster="../assets/clips/brain-kata-progress.jpg" aria-label="Clip: the 30-day progress calendar"><source src="../assets/clips/brain-kata-progress.mp4" type="video/mp4"></video></div><figcaption><span class="tag">clip</span> · progress</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/brain-kata-6.jpg" alt="Tour step: choosing a light or dark appearance" loading="lazy"></div><figcaption>appearance</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="status" class="glass panel status">
+      <h2><span class="hash">#</span> status</h2>
+      <p>In development. Brain Kata isn't on the App Store yet, and sync between devices isn't connected yet.</p>
+      <p>The clips and screenshots on this page are the current build, recorded live in the iPhone simulator with a small sample deck.</p>
+      <p class="backlink open"><a href="../index.html"><span class="ps1">$</span> cd .. <span aria-hidden="true">&larr;</span> back to ADHD</a></p>
+    </section>
+  </main>
+
+  <footer><span class="ps1">$</span> echo "© 2026 ADHD · AI Driven Haptic Design" <span class="sep">·</span> <a href="mailto:cramirez18444@gmail.com">cramirez18444@gmail.com</a></footer>
+
+  <script src="../adhd.js"></script>
+</body>
+</html>

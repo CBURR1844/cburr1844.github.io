@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gate Relay · ADHD</title>
+  <meta name="description" content="Gate Relay (working title): a one-touch timing game for iPhone by ADHD (AI Driven Haptic Design). In development.">
+  <meta name="theme-color" content="#05060a">
+  <link rel="canonical" href="https://cburr1844.github.io/gate-relay/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="ADHD · AI Driven Haptic Design">
+  <meta property="og:title" content="Gate Relay · a one-touch timing game for iPhone">
+  <meta property="og:description" content="Tap to surge. Time each crossing as the gates open and close. In development, not on the App Store yet.">
+  <meta property="og:url" content="https://cburr1844.github.io/gate-relay/">
+  <meta property="og:image" content="https://cburr1844.github.io/assets/og/og-gate-relay.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Gate Relay gameplay on iPhone: a torii gate on the sakura stage">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="../favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="apple-touch-icon" href="../apple-touch-icon.png">
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../app.css">
+</head>
+<body>
+  <!-- Animated ASCII/binary aurora field (see adhd.js). Purely decorative. -->
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="hero app-hero">
+    <nav class="glass nav">
+      <a class="mark" href="../index.html">adhd<span class="caret">_</span></a>
+      <a class="hide-sm" href="#features">features</a>
+      <a class="hide-sm" href="#gallery">gallery</a>
+      <a href="#status">status</a>
+      <a class="back" href="../index.html">&larr; adhd</a>
+    </nav>
+
+    <div class="app-hero-body">
+      <div class="app-hero-copy">
+        <p class="prompt"><span class="ps1">~/adhd/gate-relay $</span> ./run --portrait<span class="cursor" aria-hidden="true"></span></p>
+        <h1 class="app-title">GATE RELAY</h1>
+        <p class="lede">A one-touch timing game for iPhone, played in portrait. Tap to surge. Time each crossing as the gates open and close.</p>
+        <p class="stack"><span>iphone</span><span>swiftui</span><span>spritekit</span></p>
+        <p class="status-line"><span class="dot" aria-hidden="true"></span> in development · not on the App Store yet</p>
+      </div>
+      <div class="hero-stage">
+        <figure class="hero-phone">
+          <video muted playsinline loop preload="none" poster="../assets/clips/gate-relay-torii.jpg" aria-label="Gate Relay gameplay: a torii gate approaches on the sakura stage"><source src="../assets/clips/gate-relay-torii.mp4" type="video/mp4"></video>
+          <div class="hero-floor" aria-hidden="true"></div>
+        </figure>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section id="about" class="glass panel pitch">
+      <h2><span class="hash">#</span> the game</h2>
+      <p>Your ship runs a bamboo corridor, gate after gate. Hands clap shut, blades swing, fans fold open and lion-dogs lunge from the walls. One touch is all you get: tap to surge, and time each crossing for the moment the way is clear.</p>
+      <p>Surge burns fuel, so save some. Every so often a torii blocks the whole corridor, and only a surging ship can break through it.</p>
+    </section>
+
+    <section id="features">
+      <h2 class="section-title"><span class="hash">#</span> features</h2>
+      <div class="features">
+        <article class="feature glass"><h3>One touch</h3><p>Tap anywhere to surge. That's the whole control scheme, and every crossing comes down to timing.</p></article>
+        <article class="feature glass"><h3>A surge tank</h3><p>Surging burns a six-block tank. Close calls refill it, scaled by how tight the crossing was.</p></article>
+        <article class="feature glass"><h3>Breakable torii</h3><p>Some gates have no gap at all. Only a surging ship smashes through them.</p></article>
+        <article class="feature glass"><h3>Hand-drawn gates</h3><p>Prayer hands, katana, kusarigama, folding fans, komainu, kunai, oni masks and more, each with its own timing.</p></article>
+        <article class="feature glass"><h3>Five stages</h3><p>The scene changes every 10 gates: a dawn sky, sakura, rolling waves, sunset clouds and a lantern-lit night.</p></article>
+        <article class="feature glass"><h3>Seeded courses</h3><p>After a wipeout, retry the same course to master it, or roll a new one.</p></article>
+        <article class="feature glass"><h3>Comfort settings</h3><p>Haptics, sound effects and music toggles, plus Reduce Motion / Effects, which turns off spins, sway and flicker.</p></article>
+        <article class="feature glass"><h3>Built native</h3><p>SwiftUI menus over a SpriteKit playfield, driven by a fixed-step simulation at 120 steps a second.</p></article>
+      </div>
+    </section>
+
+    <section id="gallery">
+      <h2 class="section-title"><span class="hash">#</span> gallery</h2>
+      <div class="gallery glass">
+        <figure><div class="shot"><video muted playsinline loop preload="none" poster="../assets/clips/gate-relay-waves.jpg" aria-label="Gameplay clip: gates on the wave stage"><source src="../assets/clips/gate-relay-waves.mp4" type="video/mp4"></video></div><figcaption><span class="tag">clip</span> · the wave stage</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/gate-relay-1.jpg" alt="Prayer-hands gate" loading="lazy"></div><figcaption>prayer-hands gate</figcaption></figure>
+        <figure><div class="shot"><video muted playsinline loop preload="none" poster="../assets/clips/gate-relay-oni.jpg" aria-label="Gameplay clip: an oni gate at sunset"><source src="../assets/clips/gate-relay-oni.mp4" type="video/mp4"></video></div><figcaption><span class="tag">clip</span> · an oni gate at sunset</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/gate-relay-2.jpg" alt="Katana gate winding up" loading="lazy"></div><figcaption>katana gate</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/gate-relay-3.jpg" alt="Kusarigama gate" loading="lazy"></div><figcaption>kusarigama gate</figcaption></figure>
+        <figure><div class="shot"><video muted playsinline loop preload="none" poster="../assets/clips/gate-relay-lanterns.jpg" aria-label="Gameplay clip: the lantern-lit night stage"><source src="../assets/clips/gate-relay-lanterns.mp4" type="video/mp4"></video></div><figcaption><span class="tag">clip</span> · lantern-lit night</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/gate-relay-4.jpg" alt="Folding-fan gate" loading="lazy"></div><figcaption>folding-fan gate</figcaption></figure>
+        <figure><div class="shot"><img src="../assets/shots/gate-relay-5.jpg" alt="The ship surging" loading="lazy"></div><figcaption>surge</figcaption></figure>
+      </div>
+    </section>
+
+    <section id="status" class="glass panel status">
+      <h2><span class="hash">#</span> status</h2>
+      <p>In development. Gate Relay is a working title. The game isn't on the App Store yet, and there's no release date.</p>
+      <p>The clips on this page are real gameplay recorded from the iPhone simulator.</p>
+      <p class="backlink open"><a href="../index.html"><span class="ps1">$</span> cd .. <span aria-hidden="true">&larr;</span> back to ADHD</a></p>
+    </section>
+  </main>
+
+  <footer><span class="ps1">$</span> echo "© 2026 ADHD · AI Driven Haptic Design" <span class="sep">·</span> <a href="mailto:cramirez18444@gmail.com">cramirez18444@gmail.com</a></footer>
+
+  <script src="../adhd.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page not found · ADHD</title>
+  <meta name="description" content="That page doesn't exist on ADHD (AI Driven Haptic Design).">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#05060a">
+  <!-- GitHub Pages serves this file at any missing URL, at any depth, so it
+       uses root-absolute paths (the site is the user site at the domain root). -->
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .lost { min-height: 100vh; }
+    .lost .hero-body { padding-top: 10vh; }
+    .lost .tag-word { font-size: clamp(110px, 26vw, 300px); }
+    .lost .lede { margin-top: 30px; }
+    .lost .hero-body { position: relative; }
+    .lost .hero-body::before {
+      content: ""; position: absolute; inset: 0 -40px; z-index: -1; pointer-events: none;
+      background: radial-gradient(ellipse at 30% 50%, rgba(5,6,10,0.8), rgba(5,6,10,0.45) 50%, transparent 75%);
+    }
+    .lost .prompt { color: #b4bccd; }
+    .lost .ways { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 0; padding: 0; list-style: none; }
+  </style>
+</head>
+<body>
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
+
+  <header class="hero lost">
+    <nav class="glass nav">
+      <a class="mark" href="/" style="color: var(--ink)">adhd<span class="caret">_</span></a>
+      <a href="/gate-relay/">gate relay</a>
+      <a href="/brain-kata/">brain kata</a>
+    </nav>
+    <div class="hero-body">
+      <p class="prompt"><span class="ps1">~/adhd $</span> cd <span id="path">./that-page</span><br>cd: no such page<span class="cursor" aria-hidden="true"></span></p>
+      <h1 class="tag-word" data-text="404">404</h1>
+      <p class="lede">This page wandered off. Here's the way back.</p>
+      <ul class="ways open">
+        <li><a href="/"><span class="ps1">$</span> cd ~ <span aria-hidden="true">&rarr;</span> home</a></li>
+        <li><a href="/gate-relay/"><span class="ps1">$</span> open gate-relay</a></li>
+        <li><a href="/brain-kata/"><span class="ps1">$</span> open brain-kata</a></li>
+      </ul>
+    </div>
+  </header>
+
+  <footer><span class="ps1">$</span> echo "© 2026 ADHD · AI Driven Haptic Design" <span class="sep">·</span> <a href="mailto:cramirez18444@gmail.com">cramirez18444@gmail.com</a></footer>
+
+  <script>
+    // Echo the missing path in the prompt (text only, never parsed as HTML).
+    (function () {
+      var p = location.pathname;
+      if (p && p !== "/" && !/404\.html$/.test(p)) document.getElementById("path").textContent = "." + p;
+    })();
+  </script>
+  <script src="/adhd.js"></script>
+</body>
+</html>
