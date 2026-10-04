@@ -20,48 +20,437 @@
   var BIN = "01";
   var cell = 14, cw = 8.68, cols = 0, rows = 0, dpr = 1, vw = 0, vh = 0;
 
-  // Palette stops (aurora): deep violet -> cyan -> magenta -> amber
-  var STOPS = [
-    [0.00, [20, 10, 60]],
-    [0.30, [110, 70, 255]],
-    [0.55, [62, 242, 224]],
-    [0.78, [255, 63, 180]],
-    [1.00, [255, 190, 90]]
-  ];
-  function palette(t) {
-    t = Math.max(0, Math.min(1, t));
-    for (var i = 1; i < STOPS.length; i++) {
-      if (t <= STOPS[i][0]) {
-        var a = STOPS[i - 1], b = STOPS[i];
-        var k = (t - a[0]) / (b[0] - a[0]);
-        return [
-          Math.round(a[1][0] + (b[1][0] - a[1][0]) * k),
-          Math.round(a[1][1] + (b[1][1] - a[1][1]) * k),
-          Math.round(a[1][2] + (b[1][2] - a[1][2]) * k)
-        ];
+  /* ---------- Themes ----------
+   * Every colour the background and the page chrome use lives here, one
+   * object per look. A page picks its theme with <html data-theme="...">;
+   * ADHD.setTheme(name) switches live, lerping the glyph palette, the blade
+   * and heat colours and the base over ~0.5 s while CSS transitions the
+   * page's custom properties (registered with @property in style.css).
+   *   stops   glyph palette, low density -> hot binary core
+   *   base    canvas background
+   *   wallA/B chromatic tint on the two walls of a cut (left / right of the blade)
+   *   heat    colour the seam cools through; core: white-hot seam, wall flare, blade core
+   *   glow    soft halo under the blade; tip: blade tip gradient (inner -> outer)
+   *   gain    optional glyph opacity multiplier (default 1) for bright palettes
+   *   ui      CSS custom properties for the page (see :root in style.css)
+   * Gallery themes (ukiyoe ... gold) are tuned from each design's sampled
+   * palette, pushed dark-friendly so the glyphs stay clean on a dark base.
+   */
+  var THEMES = {
+    home: {
+      base: "#05060a",
+      stops: [[0, "#140a3c"], [0.30, "#6e46ff"], [0.55, "#3ef2e0"], [0.78, "#ff3fb4"], [1, "#ffbe5a"]],
+      wallA: "#3ef2e0", wallB: "#ff3fb4", heat: "#5af5eb", core: "#ffffff", glow: "#6e46ff",
+      tip: ["#befff8", "#3ef2e0", "#6e46ff"],
+      ui: {
+        bg: "#05060a", ink: "#e8f0ff", dim: "#8a93a8", text2: "#c9d2e6", text3: "#b4bccd",
+        accent: "#3ef2e0", glow: "#9b6bff", hot: "#ff3fb4", warm: "#ffb547",
+        glass: "rgba(14,16,26,0.42)", line: "rgba(255,255,255,0.12)",
+        frameA: "#2b2f3d", frameB: "#0b0c12", stroke: "rgba(255,255,255,0.85)", shadow: "#000000"
+      }
+    },
+    // Brain Kata: ukiyo-e woodblock. Indigo night, Prussian waves, washi cream,
+    // a vermilion sun and the gold of the brain mascot; ink outlines, not neon.
+    brainKata: {
+      base: "#070a18",
+      stops: [[0, "#0d1434"], [0.3, "#2a4aa8"], [0.52, "#46a6dc"], [0.68, "#f3e6c8"], [0.84, "#ec5434"], [1, "#f2b23a"]],
+      wallA: "#f3e6c8", wallB: "#ee5a36", heat: "#f2b440", core: "#fff6e2", glow: "#e8553a",
+      tip: ["#fff1d0", "#f2b440", "#e8553a"],
+      ui: {
+        bg: "#070a18", ink: "#f5ecd8", dim: "#9ea3c0", text2: "#ddd6c4", text3: "#c8c2b0",
+        accent: "#f2b440", glow: "#4f74d8", hot: "#f57a56", warm: "#f3e1b8",
+        glass: "rgba(16,22,52,0.5)", line: "rgba(243,230,200,0.16)",
+        frameA: "#2a3156", frameB: "#0b0f24", stroke: "#fff4dc", shadow: "#0a0e26"
+      }
+    },
+    // Gate Relay: festival colour on deep ink (docs/ART_DIRECTION.md).
+    gateRelay: {
+      base: "#0d0a18",
+      stops: [[0, "#241a4a"], [0.3, "#8b5cf6"], [0.5, "#ff7ab6"], [0.66, "#f2542d"], [0.8, "#ffc933"], [0.9, "#2fd68f"], [1, "#3fc1ff"]],
+      wallA: "#3fc1ff", wallB: "#ff7ab6", heat: "#ffc933", core: "#fff4dc", glow: "#8b5cf6",
+      tip: ["#fff4dc", "#ffc933", "#f2542d"],
+      ui: {
+        bg: "#0d0a18", ink: "#fff4dc", dim: "#a99fc4", text2: "#e6dccb", text3: "#cfc4b8",
+        accent: "#3fc1ff", glow: "#8b5cf6", hot: "#ff7ab6", warm: "#ffc933",
+        glass: "rgba(20,15,36,0.52)", line: "rgba(255,244,220,0.15)",
+        frameA: "#2c2448", frameB: "#140f24", stroke: "#fff4dc", shadow: "#140f24"
+      }
+    },
+    // Gallery at rest: a quiet moonlit steel, so each design's colour lands hard.
+    gallery: {
+      base: "#06070d",
+      stops: [[0, "#0e1020"], [0.3, "#2c3562"], [0.58, "#5a6c9e"], [0.82, "#8e9cc8"], [1, "#c4c4ec"]], gain: 0.72,
+      wallA: "#9fd8ff", wallB: "#cdb8ff", heat: "#bfe6ff", core: "#ffffff", glow: "#6f7fd0",
+      tip: ["#eef4ff", "#9fd8ff", "#6f7fd0"],
+      ui: {
+        bg: "#06070d", ink: "#eef1fb", dim: "#959cb4", text2: "#cdd3e4", text3: "#b8bfd2",
+        accent: "#9fd8ff", glow: "#8a90e0", hot: "#cdb8ff", warm: "#e9d6a8",
+        glass: "rgba(12,14,24,0.6)", line: "rgba(255,255,255,0.12)",
+        frameA: "#2a2e3c", frameB: "#0b0c12", stroke: "rgba(255,255,255,0.85)", shadow: "#000000"
+      }
+    },
+    // Ukiyo-e Drift: Prussian blue waves, washi paper, a vermilion hanko stamp.
+    ukiyoe: {
+      base: "#010814",
+      stops: [[0, "#001030"], [0.32, "#0f3a72"], [0.58, "#2a6cb0"], [0.8, "#7fa6d0"], [0.93, "#eadcc0"], [1, "#e0603f"]],
+      wallA: "#eadcc0", wallB: "#d8583c", heat: "#f0b8a0", core: "#fff7ea", glow: "#1f5a9e",
+      tip: ["#fff3e0", "#eadcc0", "#2f6aa8"],
+      ui: {
+        bg: "#010814", ink: "#f4ead6", dim: "#97a6bf", accent: "#eadcc0", glow: "#3d78c0", hot: "#e8664a", warm: "#e8c9a8",
+        glass: "rgba(0,18,40,0.62)", line: "rgba(234,220,192,0.18)", frameA: "#1d3354", frameB: "#001030", stroke: "#f4ead6", shadow: "#001030"
+      }
+    },
+    // Sumi Silence: ink greys and warm white, one red seal (only in the hottest cores and the cut).
+    sumi: {
+      base: "#080807",
+      stops: [[0, "#151514"], [0.3, "#3c3b39"], [0.6, "#8d8a85"], [0.86, "#e6e0d6"], [0.95, "#f2ede4"], [1, "#c8322a"]],
+      wallA: "#efe9df", wallB: "#c8322a", heat: "#d24a3a", core: "#fffaf2", glow: "#5a5856",
+      tip: ["#fffaf2", "#c8c2b8", "#c8322a"],
+      ui: {
+        bg: "#080807", ink: "#f2ede4", dim: "#a19c94", accent: "#e8e2d8", glow: "#77736d", hot: "#ef6a5a", warm: "#d9cdb8",
+        glass: "rgba(14,14,13,0.66)", line: "rgba(242,237,228,0.16)", frameA: "#2e2d2b", frameB: "#0c0c0b", stroke: "#f2ede4", shadow: "#000000"
+      }
+    },
+    // Nihonga Gild: gold leaf glowing behind malachite and ultramarine.
+    nihonga: {
+      base: "#0a0905",
+      stops: [[0, "#141a2e"], [0.26, "#2a46a0"], [0.48, "#2e9c74"], [0.7, "#d4a650"], [0.88, "#e8c88a"], [1, "#f4ead0"]],
+      wallA: "#3fb98a", wallB: "#4a68d0", heat: "#e8c080", core: "#fff8e6", glow: "#d4a650",
+      tip: ["#fff8e6", "#e8c88a", "#2e9c74"],
+      ui: {
+        bg: "#0a0905", ink: "#f6eedb", dim: "#ada386", accent: "#e8c88a", glow: "#3fb98a", hot: "#93a8f2", warm: "#e0c090",
+        glass: "rgba(18,16,8,0.64)", line: "rgba(224,192,144,0.2)", frameA: "#3a3220", frameB: "#100e06", stroke: "#f4e6c4", shadow: "#0a0905"
+      }
+    },
+    // Origami Fold: crisp pastel paper facets (pink, sky, mint, cream) on a dusk navy.
+    origami: {
+      base: "#0b0d1a",
+      stops: [[0, "#1a1c34"], [0.28, "#7f96c8"], [0.5, "#a6dcc4"], [0.72, "#f0a090"], [0.88, "#f6c4b0"], [1, "#fbeedd"]],
+      wallA: "#a0c8f0", wallB: "#f5a8b8", heat: "#fbe0c8", core: "#ffffff", glow: "#a0b0d0",
+      tip: ["#ffffff", "#f6c4b0", "#a0b0d0"],
+      ui: {
+        bg: "#0b0d1a", ink: "#fbf3e8", dim: "#a9aec8", accent: "#a6dcc4", glow: "#a0b0e8", hot: "#f5a8b8", warm: "#f0c8a0",
+        glass: "rgba(18,20,38,0.6)", line: "rgba(251,238,221,0.18)", frameA: "#2e3150", frameB: "#10121f", stroke: "#fbeedd", shadow: "#0b0d1a"
+      }
+    },
+    // Obsidian Mirror: black volcanic glass, fine bronze-gold inlay, deep jade.
+    obsidian: {
+      base: "#030404",
+      stops: [[0, "#0a0f0e"], [0.3, "#0f4a3a"], [0.55, "#1f7a5e"], [0.76, "#806040"], [0.9, "#b89466"], [1, "#e0c090"]],
+      wallA: "#2fae84", wallB: "#e0c090", heat: "#c8a070", core: "#fff4dc", glow: "#14604a",
+      tip: ["#fff4dc", "#e0c090", "#14604a"],
+      ui: {
+        bg: "#030404", ink: "#efe6d4", dim: "#94968c", accent: "#e0c090", glow: "#2fae84", hot: "#5fd0a8", warm: "#c8a070",
+        glass: "rgba(6,8,8,0.68)", line: "rgba(224,192,144,0.18)", frameA: "#1d2321", frameB: "#050606", stroke: "#e0c090", shadow: "#000000"
+      }
+    },
+    // Loom & Thread: cochineal red and indigo threads, terracotta, cream.
+    textile: {
+      base: "#0c0710",
+      stops: [[0, "#1c1236"], [0.26, "#30348e"], [0.48, "#903020"], [0.66, "#c8582e"], [0.84, "#c0a080"], [1, "#efe2c4"]],
+      wallA: "#efe2c4", wallB: "#c8402a", heat: "#e0884e", core: "#fff4e4", glow: "#903020",
+      tip: ["#fff4e4", "#e0884e", "#30348e"],
+      ui: {
+        bg: "#0c0710", ink: "#f6ecda", dim: "#ab9f9a", accent: "#efc89a", glow: "#5a60c8", hot: "#f27e5e", warm: "#d8b890",
+        glass: "rgba(22,12,24,0.62)", line: "rgba(239,226,196,0.18)", frameA: "#38243a", frameB: "#120a14", stroke: "#efe2c4", shadow: "#0c0710"
+      }
+    },
+    // Lost-Wax Gold: warm cast metal chased over charcoal.
+    gold: {
+      base: "#090706",
+      stops: [[0, "#18120c"], [0.3, "#705030"], [0.52, "#907040"], [0.72, "#d0a060"], [0.88, "#f0d090"], [1, "#fff2cc"]],
+      wallA: "#f0d090", wallB: "#e0a050", heat: "#ffd27a", core: "#fffaea", glow: "#b07a30",
+      tip: ["#fffaea", "#f0d090", "#b07a30"],
+      ui: {
+        bg: "#090706", ink: "#f8eed8", dim: "#aa9c84", accent: "#f0c870", glow: "#c08a40", hot: "#ffb04a", warm: "#e0b070",
+        glass: "rgba(16,12,8,0.64)", line: "rgba(240,208,144,0.2)", frameA: "#3a2e1e", frameB: "#100c08", stroke: "#f0d090", shadow: "#000000"
+      }
+    },
+    // Neon Rain: midnight blue, electric purple, neon magenta, signage red.
+    neon: {
+      base: "#070414",
+      stops: [[0, "#120a2e"], [0.28, "#3a1a8a"], [0.5, "#8a2be2"], [0.7, "#ff2fa8"], [0.86, "#ff4a5a"], [1, "#ffd6f2"]],
+      wallA: "#39d0ff", wallB: "#ff2fa8", heat: "#ff6ad0", core: "#fff0fb", glow: "#8a2be2",
+      tip: ["#ffe0f6", "#ff2fa8", "#3a1a8a"],
+      ui: {
+        bg: "#070414", ink: "#f6eefe", dim: "#a89cc8", accent: "#ff6ad0", glow: "#9b5cff", hot: "#39d0ff", warm: "#ff7a86",
+        glass: "rgba(14,8,32,0.62)", line: "rgba(255,106,208,0.2)", frameA: "#2a1a4a", frameB: "#0c0618", stroke: "#ffd6f2", shadow: "#000000"
+      }
+    },
+    // Raked Sand: warm grey stone and raked sand, charcoal lines, nothing loud.
+    zen: {
+      base: "#0b0a09",
+      stops: [[0, "#16140f"], [0.3, "#3e3a34"], [0.56, "#7a746a"], [0.8, "#bcb09a"], [1, "#ece4d2"]], gain: 0.85,
+      wallA: "#e4dac6", wallB: "#8a8378", heat: "#d8ccb4", core: "#fffaf0", glow: "#5a554e",
+      tip: ["#fffaf0", "#d8ccb4", "#5a554e"],
+      ui: {
+        bg: "#0b0a09", ink: "#f2ece0", dim: "#a39c90", accent: "#ddd0b6", glow: "#9a9286", hot: "#d4bc94", warm: "#cdbfa4",
+        glass: "rgba(16,15,13,0.64)", line: "rgba(236,228,210,0.16)", frameA: "#2e2b27", frameB: "#0e0d0b", stroke: "#ece4d2", shadow: "#000000"
+      }
+    },
+    // Lantern Light: indigo night, lantern amber, vermilion and paper cream.
+    matsuri: {
+      base: "#070818",
+      stops: [[0, "#10123a"], [0.28, "#2a2f78"], [0.5, "#c8402a"], [0.68, "#f09a30"], [0.86, "#ffd27a"], [1, "#fff0d0"]],
+      wallA: "#ffb347", wallB: "#e8452c", heat: "#ffcf70", core: "#fff6e4", glow: "#c8402a",
+      tip: ["#fff3d8", "#ffb347", "#2a2f78"],
+      ui: {
+        bg: "#070818", ink: "#fff2dc", dim: "#a8a6c4", accent: "#ffbe5a", glow: "#5a64c8", hot: "#ff8e6e", warm: "#ffd890",
+        glass: "rgba(14,16,44,0.6)", line: "rgba(255,190,90,0.2)", frameA: "#2a2c5a", frameB: "#0c0d26", stroke: "#fff0d0", shadow: "#000000"
+      }
+    },
+    // Ink & Thunder: ink black, paper white, screentone grey, one accent red.
+    manga: {
+      base: "#050505",
+      stops: [[0, "#141414"], [0.3, "#3e3e3e"], [0.56, "#8e8e8e"], [0.84, "#f2f0ea"], [0.95, "#ffffff"], [1, "#e02424"]],
+      wallA: "#ffffff", wallB: "#e02424", heat: "#ff5050", core: "#ffffff", glow: "#3e3e3e",
+      tip: ["#ffffff", "#bdbdbd", "#e02424"],
+      ui: {
+        bg: "#050505", ink: "#f6f4ee", dim: "#a3a3a3", accent: "#f2f0ea", glow: "#8a8a8a", hot: "#ff5a5a", warm: "#e6e2d8",
+        glass: "rgba(10,10,10,0.68)", line: "rgba(255,255,255,0.16)", frameA: "#2c2c2c", frameB: "#0a0a0a", stroke: "#ffffff", shadow: "#000000"
+      }
+    },
+    // Clay & Ash: fired clay, ash grey, earth brown, warm beige.
+    wabi: {
+      base: "#0b0806",
+      stops: [[0, "#1a120c"], [0.3, "#4e3624"], [0.54, "#906040"], [0.76, "#b09080"], [1, "#ddcdb6"]], gain: 0.9,
+      wallA: "#d8c4a8", wallB: "#a8683e", heat: "#d4a880", core: "#fff6ea", glow: "#6a4630",
+      tip: ["#fff6ea", "#d4a880", "#6a4630"],
+      ui: {
+        bg: "#0b0806", ink: "#f4ebde", dim: "#a89a8c", accent: "#dcbc96", glow: "#b08a6a", hot: "#e8a070", warm: "#d6bea0",
+        glass: "rgba(20,14,10,0.64)", line: "rgba(221,205,182,0.18)", frameA: "#38281e", frameB: "#100b08", stroke: "#ddcdb6", shadow: "#000000"
+      }
+    },
+    // Superflat Pop: hot pink, sunshine yellow, sky blue, cherry red, all at full volume.
+    superflat: {
+      base: "#0c0618",
+      stops: [[0, "#24104a"], [0.26, "#30b0d0"], [0.46, "#f060a0"], [0.64, "#ffd23c"], [0.82, "#f07020"], [1, "#fff2fa"]],
+      wallA: "#30c8f0", wallB: "#ffd23c", heat: "#ff8ac0", core: "#ffffff", glow: "#f060a0",
+      tip: ["#fff2fa", "#ffd23c", "#f060a0"],
+      ui: {
+        bg: "#0c0618", ink: "#fff6fb", dim: "#b4a6cc", accent: "#ffd23c", glow: "#30c8f0", hot: "#ff78b8", warm: "#ff9a50",
+        glass: "rgba(22,10,42,0.62)", line: "rgba(255,210,60,0.22)", frameA: "#34205a", frameB: "#120a24", stroke: "#fff2fa", shadow: "#000000"
+      }
+    },
+    // Fifth Sun: carved basalt and ritual gold, calendar-precise.
+    sunstone: {
+      base: "#080706",
+      stops: [[0, "#141210"], [0.3, "#3c3832"], [0.52, "#706040"], [0.72, "#a09070"], [0.88, "#d8b860"], [1, "#f0dca0"]],
+      wallA: "#e0c070", wallB: "#a09070", heat: "#f0d080", core: "#fff8e4", glow: "#706040",
+      tip: ["#fff8e4", "#e0c070", "#3c3832"],
+      ui: {
+        bg: "#080706", ink: "#f4ecda", dim: "#a69e8e", accent: "#e6c674", glow: "#a8986e", hot: "#f0b450", warm: "#d8c08a",
+        glass: "rgba(16,14,12,0.66)", line: "rgba(224,192,112,0.18)", frameA: "#34302a", frameB: "#0e0c0a", stroke: "#f0dca0", shadow: "#000000"
+      }
+    },
+    // Painted Book: amate bark tan, terracotta, carbon black and cochineal red.
+    codex: {
+      base: "#0d0806",
+      stops: [[0, "#1e120c"], [0.28, "#6a2a1a"], [0.48, "#b8203a"], [0.64, "#c8582e"], [0.82, "#d0a080"], [1, "#f2dec2"]],
+      wallA: "#e8c8a4", wallB: "#c8302a", heat: "#e8905a", core: "#fff4e6", glow: "#6a2a1a",
+      tip: ["#fff4e6", "#e8905a", "#6a2a1a"],
+      ui: {
+        bg: "#0d0806", ink: "#f6ecde", dim: "#ac9c90", accent: "#ecc8a0", glow: "#c86a4a", hot: "#f27a62", warm: "#e0b890",
+        glass: "rgba(24,14,10,0.64)", line: "rgba(242,222,194,0.18)", frameA: "#3a241a", frameB: "#120a08", stroke: "#f2dec2", shadow: "#000000"
+      }
+    },
+    // Stone Ascent: pyramid stone at dusk, amber light, shadow brown, a sky on fire.
+    temple: {
+      base: "#0b0705",
+      stops: [[0, "#1a100a"], [0.28, "#4a2c18"], [0.48, "#804020"], [0.66, "#c07030"], [0.84, "#f0a030"], [1, "#ffdc96"]],
+      wallA: "#f0a030", wallB: "#b4b0aa", heat: "#ffc060", core: "#fff4e0", glow: "#c07030",
+      tip: ["#fff4e0", "#f0a030", "#804020"],
+      ui: {
+        bg: "#0b0705", ink: "#f8ecdc", dim: "#ab9c8c", accent: "#f6aa40", glow: "#c87a40", hot: "#ff8c50", warm: "#e8c08a",
+        glass: "rgba(22,14,10,0.64)", line: "rgba(240,160,48,0.2)", frameA: "#3a2618", frameB: "#120b07", stroke: "#ffdc96", shadow: "#000000"
+      }
+    },
+    // Plume Song: iridescent quetzal greens and teals, deep blue, a flash of sun gold.
+    quetzal: {
+      base: "#030a0a",
+      stops: [[0, "#06181a"], [0.28, "#1a4a8a"], [0.48, "#209080"], [0.68, "#40d0a8"], [0.86, "#8ee8d0"], [1, "#f0d060"]],
+      wallA: "#40d0a8", wallB: "#f0d060", heat: "#8ee8d0", core: "#f4fff8", glow: "#1a4a8a",
+      tip: ["#f4fff8", "#40d0a8", "#1a4a8a"],
+      ui: {
+        bg: "#030a0a", ink: "#eef8f2", dim: "#92aaa4", accent: "#5ee0b8", glow: "#4a80d8", hot: "#f0d060", warm: "#b8e0c8",
+        glass: "rgba(6,20,22,0.62)", line: "rgba(94,224,184,0.2)", frameA: "#173434", frameB: "#061212", stroke: "#c8f4e4", shadow: "#000000"
+      }
+    },
+    // Wall of Memory: muralist terracotta, ochre, turquoise and crimson.
+    mural: {
+      base: "#0c0606",
+      stops: [[0, "#1e0c0c"], [0.26, "#901010"], [0.46, "#c05030"], [0.64, "#e0a040"], [0.82, "#30b0b0"], [1, "#e8f2e4"]],
+      wallA: "#30c4c4", wallB: "#e0a040", heat: "#f07050", core: "#fff6ec", glow: "#901010",
+      tip: ["#fff6ec", "#e0a040", "#901010"],
+      ui: {
+        bg: "#0c0606", ink: "#f8eee4", dim: "#ae9e98", accent: "#48cccc", glow: "#d0603a", hot: "#f88c70", warm: "#e8b860",
+        glass: "rgba(24,12,12,0.62)", line: "rgba(72,204,204,0.2)", frameA: "#3a2020", frameB: "#120808", stroke: "#f2e2cc", shadow: "#000000"
+      }
+    },
+    // Green Ruin: deep jungle, moss on stone, morning mist.
+    jungle: {
+      base: "#030a04",
+      stops: [[0, "#06160a"], [0.28, "#0a3a14"], [0.5, "#3a6a2a"], [0.7, "#909040"], [0.86, "#d0c060"], [1, "#e8ecd8"]],
+      wallA: "#a8c8a0", wallB: "#d0c060", heat: "#e0d888", core: "#f6f8ec", glow: "#2a5a22",
+      tip: ["#f6f8ec", "#d0c060", "#0a3a14"],
+      ui: {
+        bg: "#030a04", ink: "#eef2e4", dim: "#98a690", accent: "#cad474", glow: "#5a9a4a", hot: "#e2cc64", warm: "#b8c8a0",
+        glass: "rgba(6,18,8,0.64)", line: "rgba(208,192,96,0.18)", frameA: "#1c3020", frameB: "#081008", stroke: "#e8ecd8", shadow: "#000000"
+      }
+    },
+    // Concrete Glyph: board-formed concrete, ochre, glyph black, clay.
+    mexica: {
+      base: "#080807",
+      stops: [[0, "#141413"], [0.3, "#3a3836"], [0.54, "#7a7570"], [0.72, "#a08060"], [0.88, "#e0c0a0"], [1, "#f4e4cc"]],
+      wallA: "#e0a050", wallB: "#c8c4bc", heat: "#e8b878", core: "#fff8ee", glow: "#5a5650",
+      tip: ["#fff8ee", "#e0a050", "#3a3836"],
+      ui: {
+        bg: "#080807", ink: "#f2ece2", dim: "#a29c94", accent: "#e6b474", glow: "#9a948c", hot: "#ee9c64", warm: "#d8c0a0",
+        glass: "rgba(16,16,15,0.66)", line: "rgba(224,192,160,0.18)", frameA: "#302e2b", frameB: "#0c0c0b", stroke: "#f4e4cc", shadow: "#000000"
       }
     }
-    return STOPS[STOPS.length - 1][1];
-  }
+  };
 
-  // The palette is sampled ~10k times a frame. Precompute it (and its CSS
-  // strings) once so the hot loop does no colour maths or string building;
-  // alpha goes through globalAlpha instead of an rgba() string per glyph.
+  function hexRgb(s) { var n = parseInt(s.slice(1), 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; }
+
+  // The palette is sampled ~10k times a frame. Precompute each theme's table
+  // (and its CSS strings) once so the hot loop does no colour maths or string
+  // building; alpha goes through globalAlpha instead of an rgba() string per glyph.
   var PAL_N = 1024;
-  var palR = new Uint8Array(PAL_N), palG = new Uint8Array(PAL_N), palB = new Uint8Array(PAL_N);
-  var palCss = new Array(PAL_N);
-  for (var p = 0; p < PAL_N; p++) {
-    var pc = palette(p / (PAL_N - 1));
-    palR[p] = pc[0]; palG[p] = pc[1]; palB[p] = pc[2];
-    palCss[p] = "rgb(" + pc[0] + "," + pc[1] + "," + pc[2] + ")";
+  function buildPalette(stops) {
+    var pal = new Uint8Array(PAL_N * 3), cssTab = new Array(PAL_N);
+    for (var p = 0; p < PAL_N; p++) {
+      var tv = p / (PAL_N - 1), c = hexRgb(stops[stops.length - 1][1]);
+      for (var i = 1; i < stops.length; i++) {
+        if (tv <= stops[i][0]) {
+          var a = hexRgb(stops[i - 1][1]), b = hexRgb(stops[i][1]);
+          var k = (tv - stops[i - 1][0]) / (stops[i][0] - stops[i - 1][0]);
+          c = [Math.round(a[0] + (b[0] - a[0]) * k), Math.round(a[1] + (b[1] - a[1]) * k), Math.round(a[2] + (b[2] - a[2]) * k)];
+          break;
+        }
+      }
+      pal[p * 3] = c[0]; pal[p * 3 + 1] = c[1]; pal[p * 3 + 2] = c[2];
+      cssTab[p] = "rgb(" + c[0] + "," + c[1] + "," + c[2] + ")";
+    }
+    return { pal: pal, css: cssTab };
   }
-  // Glyphs touched by the blade get tinted off-palette; cache those strings
-  // too (5 bits per channel), filled lazily so steady state allocates nothing.
+  // Glyphs touched by the blade (and every glyph mid-transition) get tinted
+  // off-palette; cache those strings (5 bits per channel), filled lazily and
+  // bounded, so steady state and repeated theme changes allocate nothing.
   var mixCss = new Array(32768);
   function css(r, g, b) {
     var k = ((r >> 3) << 10) | ((g >> 3) << 5) | (b >> 3);
     return mixCss[k] || (mixCss[k] = "rgb(" + (r & 248) + "," + (g & 248) + "," + (b & 248) + ")");
   }
+
+  // Named single colours, in this order, as flat rgb triples per theme
+  var C_BASE = 0, C_WALLA = 1, C_WALLB = 2, C_HEAT = 3, C_CORE = 4, C_GLOW = 5, NC = 6;
+  var COL_KEYS = ["base", "wallA", "wallB", "heat", "core", "glow"];
+  function prepare(th) {
+    if (th.pal) return th;
+    var built = buildPalette(th.stops);
+    th.pal = built.pal; th.palCss = built.css;
+    th.col = new Float32Array(NC * 3); th.colStr = [];
+    for (var i = 0; i < NC; i++) {
+      var c = hexRgb(th[COL_KEYS[i]]);
+      th.col[i * 3] = c[0]; th.col[i * 3 + 1] = c[1]; th.col[i * 3 + 2] = c[2];
+      th.colStr.push(th[COL_KEYS[i]]);
+    }
+    return th;
+  }
+
+  // Live state: what is on screen now. During a transition these are refilled
+  // in place each frame from the from/to snapshots (no allocation).
+  var palR = new Uint8Array(PAL_N), palG = new Uint8Array(PAL_N), palB = new Uint8Array(PAL_N);
+  var palCss = new Array(PAL_N);
+  var col = new Float32Array(NC * 3), colStr = new Array(NC);
+  var fromPal = new Float32Array(PAL_N * 3), fromCol = new Float32Array(NC * 3);
+  var gain = 1, fromGain = 1;
+  var themeName = "", theme = null, fromTheme = null, mixK = 1;
+  var tStart = 0, tDur = 0, transitioning = false;
+
+  function settle(th) {
+    for (var p = 0; p < PAL_N; p++) {
+      palR[p] = th.pal[p * 3]; palG[p] = th.pal[p * 3 + 1]; palB[p] = th.pal[p * 3 + 2];
+      palCss[p] = th.palCss[p];
+    }
+    for (var i = 0; i < NC * 3; i++) col[i] = th.col[i];
+    gain = th.gain || 1;
+    for (i = 0; i < NC; i++) colStr[i] = th.colStr[i];
+    transitioning = false; mixK = 1;
+  }
+
+  function stepTheme(now) {
+    if (!transitioning) return;
+    var k = (now - tStart) / tDur;
+    if (k >= 1) { settle(theme); return; }
+    if (k < 0) k = 0;
+    var e = k * k * (3 - 2 * k), to = theme.pal, tc = theme.col;
+    mixK = e;
+    for (var p = 0, q = 0; p < PAL_N; p++, q += 3) {
+      var r = fromPal[q] + (to[q] - fromPal[q]) * e;
+      var g = fromPal[q + 1] + (to[q + 1] - fromPal[q + 1]) * e;
+      var b = fromPal[q + 2] + (to[q + 2] - fromPal[q + 2]) * e;
+      palR[p] = r; palG[p] = g; palB[p] = b;
+      palCss[p] = css(r | 0, g | 0, b | 0);
+    }
+    for (var i = 0; i < NC * 3; i++) col[i] = fromCol[i] + (tc[i] - fromCol[i]) * e;
+    gain = fromGain + ((theme.gain || 1) - fromGain) * e;
+    for (i = 0; i < NC; i++) colStr[i] = css(col[i * 3] | 0, col[i * 3 + 1] | 0, col[i * 3 + 2] | 0);
+  }
+
+  // Page chrome: write the theme's custom properties on <html>. CSS
+  // transitions them (registered as <color>), so the page and the lava move together.
+  var root = document.documentElement;
+  function mixHex(a, b, k) {
+    var x = hexRgb(a), y = hexRgb(b);
+    return "rgb(" + Math.round(x[0] + (y[0] - x[0]) * k) + "," + Math.round(x[1] + (y[1] - x[1]) * k) + "," + Math.round(x[2] + (y[2] - x[2]) * k) + ")";
+  }
+  function applyUi(th) {
+    var ui = th.ui;
+    if (!ui.text2) ui.text2 = mixHex(ui.ink, ui.dim, 0.3);
+    if (!ui.text3) ui.text3 = mixHex(ui.ink, ui.dim, 0.5);
+    for (var key in ui) if (ui.hasOwnProperty(key)) root.style.setProperty("--" + key, ui[key]);
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute("content", ui.bg);
+  }
+
+  function setTheme(name, instant) {
+    var th = THEMES[name];
+    if (!th || name === themeName) return;
+    prepare(th);
+    if (instant || !theme) {
+      root.classList.add("theme-instant");
+      theme = th; fromTheme = th; themeName = name;
+      settle(th); applyUi(th);
+      void root.offsetWidth;   // commit the instant values before re-enabling transitions
+      root.classList.remove("theme-instant");
+      if (reduce && started) requestAnimationFrame(frame);
+      return;
+    }
+    // start from whatever is on screen right now, even mid-transition
+    for (var p = 0, q = 0; p < PAL_N; p++, q += 3) { fromPal[q] = palR[p]; fromPal[q + 1] = palG[p]; fromPal[q + 2] = palB[p]; }
+    for (var i = 0; i < NC * 3; i++) fromCol[i] = col[i];
+    fromGain = gain;
+    fromTheme = mixK < 0.5 && fromTheme ? fromTheme : theme;
+    theme = th; themeName = name;
+    tStart = performance.now(); tDur = reduce ? 220 : 520; transitioning = true; mixK = 0;
+    applyUi(th);
+    // a still (reduced-motion) field only renders while it cross-fades
+    if (reduce && !looping) { looping = true; requestAnimationFrame(frame); }
+  }
+  var started = false, looping = false;
+  window.ADHD = {
+    themes: THEMES,
+    setTheme: function (name) { setTheme(name, false); },
+    theme: function () { return themeName; },
+    // More themes from data (the gallery's generated ones). A theme already in
+    // THEMES (hand-tuned) wins; tables are built lazily on first use.
+    addThemes: function (map) {
+      for (var k in map) if (map.hasOwnProperty(k) && !THEMES[k]) THEMES[k] = map[k];
+    }
+  };
+  setTheme(THEMES[root.getAttribute("data-theme")] ? root.getAttribute("data-theme") : "home", true);
 
   // Lava-lamp blobs moving on slow Lissajous paths. ox/oy/vx/vy is a spring
   // offset: the blade can shove a blob, which then wobbles back onto its path.
@@ -283,16 +672,21 @@
   }
 
   var OPEN = 0.42;   // carve level at which the channel is open
-  var lastMs = 0;
+  var lastMs = 0, stillT = -1;
   function frame(ms) {
-    var t = ms / 1000;
+    started = true;
+    // reduced motion: one still frame; a theme change re-renders that same
+    // instant while the colours cross-fade, so nothing moves
+    if (reduce && stillT < 0) stillT = ms / 1000;
+    var t = reduce ? stillT : ms / 1000;
     var dt = lastMs ? Math.min(0.05, (ms - lastMs) / 1000) : 1 / 60;
     lastMs = ms;
+    stepTheme(performance.now());
     var w = vw, h = vh;
     var aspect = w / h;
     ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
-    ctx.fillStyle = "#05060a";
+    ctx.fillStyle = colStr[C_BASE];
     ctx.fillRect(0, 0, w, h);
 
     // blob centres for this frame (normalised coords), plus their sprung offsets
@@ -369,7 +763,7 @@
         }
         if (ch === " ") continue;
         var pi = palette01((hue / f) * 0.55 + dens * 0.55 + 0.08 * Math.sin(t * 0.3 + nx));
-        ctx.globalAlpha = Math.round((0.18 + dens * 0.8) * 100) / 100;   // same 2-decimal alpha as before
+        ctx.globalAlpha = Math.round((0.18 + dens * 0.8) * gain * 100) / 100;   // same 2-decimal alpha as before
         ctx.fillStyle = palCss[pi];
         ctx.fillText(ch, x * cw, y * cell);
       }
@@ -377,6 +771,8 @@
     ctx.globalAlpha = 1;
     drawBlade();
     if (!reduce) requestAnimationFrame(frame);
+    else if (transitioning) requestAnimationFrame(frame);
+    else looping = false;
   }
 
   function palette01(tv) {
@@ -402,25 +798,27 @@
     }
     var pi = palette01(hueN * 0.55 + dens * 0.55 + 0.08 * Math.sin(t * 0.3 + nx));
     var r = palR[pi], g = palG[pi], b = palB[pi];
-    // chromatic wall tint: cyan left of the blade, magenta right
+    // chromatic wall tint: theme wallA left of the blade, wallB right
+    // (home: cyan / magenta)
     var tint = Math.min(1, wall * 2.2) * Math.sqrt(sd < 0 ? -sd : sd);
     if (tint > 0.01) {
-      var tr = sd < 0 ? 62 : 255, tg = sd < 0 ? 242 : 63, tb = sd < 0 ? 224 : 180;
-      r += (tr - r) * tint; g += (tg - g) * tint; b += (tb - b) * tint;
+      var wo = (sd < 0 ? C_WALLA : C_WALLB) * 3;
+      r += (col[wo] - r) * tint; g += (col[wo + 1] - g) * tint; b += (col[wo + 2] - b) * tint;
     }
-    // heat: white at the core, cooling through electric cyan rather than
-    // fading to grey (a dim grey seam reads as dust, not as a cooling cut)
+    // heat: white-hot at the core, cooling through the theme's heat colour
+    // rather than fading to grey (a dim grey seam reads as dust, not as a cooling cut)
+    var co = C_CORE * 3;
     if (hot > 0.01) {
-      var hk = hot * 3 > 1 ? 1 : hot * 3, hc = hot * hot;
-      r += (90 - r) * hk; g += (245 - g) * hk; b += (235 - b) * hk;
-      r += (255 - r) * hc; g += (255 - g) * hc; b += (255 - b) * hc;
+      var hk = hot * 3 > 1 ? 1 : hot * 3, hc = hot * hot, ho = C_HEAT * 3;
+      r += (col[ho] - r) * hk; g += (col[ho + 1] - g) * hk; b += (col[ho + 2] - b) * hk;
+      r += (col[co] - r) * hc; g += (col[co + 1] - g) * hc; b += (col[co + 2] - b) * hc;
     }
-    // the strongest walls flare toward white, so they read on any lava colour
+    // the strongest walls flare toward the core colour, so they read on any lava colour
     if (wall > 0.5) {
       var wf = (wall - 0.5) * 0.6;
-      r += (255 - r) * wf; g += (255 - g) * wf; b += (255 - b) * wf;
+      r += (col[co] - r) * wf; g += (col[co + 1] - g) * wf; b += (col[co + 2] - b) * wf;
     }
-    var a = dens > 0 ? 0.18 + dens * 0.8 : 0;
+    var a = dens > 0 ? (0.18 + dens * 0.8) * gain : 0;
     var lift = Math.max(wall * 1.5, hot * 1.4);
     if (lift > a) a = lift > 1 ? 1 : lift;
     // the glyph itself rides a little of the push, so the lava visibly moves
@@ -428,8 +826,8 @@
     if (hot > 0.3) {
       // chromatic fringe on the hottest glyphs
       ctx.globalAlpha = a * 0.6 * hot;
-      ctx.fillStyle = "#ff3fb4"; ctx.fillText(ch, gx - 1.8, gy);
-      ctx.fillStyle = "#3ef2e0"; ctx.fillText(ch, gx + 1.8, gy);
+      ctx.fillStyle = colStr[C_WALLB]; ctx.fillText(ch, gx - 1.8, gy);
+      ctx.fillStyle = colStr[C_WALLA]; ctx.fillText(ch, gx + 1.8, gy);
     }
     ctx.globalAlpha = a;
     ctx.fillStyle = css(r | 0, g | 0, b | 0);
@@ -437,22 +835,25 @@
   }
 
   // The blade itself: a hairline of light along the newest part of the trail,
-  // drawn additively with a split cyan/magenta edge. It lives ~0.3 s, so it
-  // reads as the instant of the cut while the glyph wake carries the aftermath.
+  // drawn additively with a split edge in the theme's two wall colours. It lives
+  // ~0.3 s, so it reads as the instant of the cut while the glyph wake carries the aftermath.
   var BLADE_LIFE = 320;
-  // Soft glow for the blade tip, rendered once so drawing it is one drawImage.
-  var tip = document.createElement("canvas");
-  tip.width = tip.height = 96;
-  (function () {
-    var g = tip.getContext("2d");
+  // Soft glow for the blade tip, rendered once per theme so drawing it is one drawImage.
+  function rgba(hex, a) { var c = hexRgb(hex); return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a + ")"; }
+  function tipFor(th) {
+    if (th.tipCanvas) return th.tipCanvas;
+    var cv = document.createElement("canvas");
+    cv.width = cv.height = 96;
+    var g = cv.getContext("2d");
     var grad = g.createRadialGradient(48, 48, 0, 48, 48, 48);
-    grad.addColorStop(0, "rgba(255,255,255,0.9)");
-    grad.addColorStop(0.12, "rgba(190,255,248,0.55)");
-    grad.addColorStop(0.4, "rgba(62,242,224,0.16)");
-    grad.addColorStop(1, "rgba(110,70,255,0)");
+    grad.addColorStop(0, rgba(th.core, 0.9));
+    grad.addColorStop(0.12, rgba(th.tip[0], 0.55));
+    grad.addColorStop(0.4, rgba(th.tip[1], 0.16));
+    grad.addColorStop(1, rgba(th.tip[2], 0));
     g.fillStyle = grad;
     g.fillRect(0, 0, 96, 96);
-  })();
+    return (th.tipCanvas = cv);
+  }
   function drawBlade() {
     if (trLen < 2) return;
     var now = performance.now();
@@ -476,10 +877,10 @@
         var nx = -sy / l, ny = sx / l;
         var wide = trP[k] ? 1.5 : 1;
         var off = 0;
-        if (pass === 0) { ctx.strokeStyle = "#6e46ff"; ctx.lineWidth = 12 * wide * fade; ctx.globalAlpha = a * 0.16; }
-        else if (pass === 1) { ctx.strokeStyle = "#3ef2e0"; ctx.lineWidth = 1.6 * wide; ctx.globalAlpha = a * 0.55; off = -1.4 * wide; }
-        else if (pass === 2) { ctx.strokeStyle = "#ff3fb4"; ctx.lineWidth = 1.6 * wide; ctx.globalAlpha = a * 0.55; off = 1.4 * wide; }
-        else { ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 1.1 * wide; ctx.globalAlpha = a * 0.9; }
+        if (pass === 0) { ctx.strokeStyle = colStr[C_GLOW]; ctx.lineWidth = 12 * wide * fade; ctx.globalAlpha = a * 0.16; }
+        else if (pass === 1) { ctx.strokeStyle = colStr[C_WALLA]; ctx.lineWidth = 1.6 * wide; ctx.globalAlpha = a * 0.55; off = -1.4 * wide; }
+        else if (pass === 2) { ctx.strokeStyle = colStr[C_WALLB]; ctx.lineWidth = 1.6 * wide; ctx.globalAlpha = a * 0.55; off = 1.4 * wide; }
+        else { ctx.strokeStyle = colStr[C_CORE]; ctx.lineWidth = 1.1 * wide; ctx.globalAlpha = a * 0.9; }
         ctx.beginPath();
         ctx.moveTo(ax + nx * off, ay + ny * off);
         ctx.lineTo(bx + nx * off, by + ny * off);
@@ -492,8 +893,13 @@
     var ta = (1 - tipAge / BLADE_LIFE) * (0.15 + 0.85 * ts);
     if (ta > 0.02) {
       var sz = (trP[trHead] ? 64 : 44) * (0.6 + 0.4 * ts);
-      ctx.globalAlpha = ta;
-      ctx.drawImage(tip, trX[trHead] - sz / 2, trY[trHead] - sz / 2, sz, sz);
+      var tx = trX[trHead] - sz / 2, ty = trY[trHead] - sz / 2;
+      if (mixK < 1 && fromTheme !== theme) {
+        ctx.globalAlpha = ta * (1 - mixK);
+        ctx.drawImage(tipFor(fromTheme), tx, ty, sz, sz);
+      }
+      ctx.globalAlpha = ta * mixK;
+      ctx.drawImage(tipFor(theme), tx, ty, sz, sz);
     }
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";

@@ -1,16 +1,49 @@
 /* ADHD (AI Driven Haptic Design): dark CLI / liquid-glass over an ASCII aurora field. */
+/* Theme tokens. These defaults are the home (aurora) theme; adhd.js writes the
+   active theme's values (THEMES in adhd.js) onto <html>. They're registered as
+   colours so a theme change transitions smoothly instead of snapping. */
+@property --bg     { syntax: "<color>"; inherits: true; initial-value: #05060a; }
+@property --ink    { syntax: "<color>"; inherits: true; initial-value: #e8f0ff; }
+@property --dim    { syntax: "<color>"; inherits: true; initial-value: #8a93a8; }
+@property --text2  { syntax: "<color>"; inherits: true; initial-value: #c9d2e6; }
+@property --text3  { syntax: "<color>"; inherits: true; initial-value: #b4bccd; }
+@property --accent { syntax: "<color>"; inherits: true; initial-value: #3ef2e0; }
+@property --glow   { syntax: "<color>"; inherits: true; initial-value: #9b6bff; }
+@property --hot    { syntax: "<color>"; inherits: true; initial-value: #ff3fb4; }
+@property --warm   { syntax: "<color>"; inherits: true; initial-value: #ffb547; }
+@property --glass  { syntax: "<color>"; inherits: true; initial-value: rgba(14, 16, 26, 0.42); }
+@property --line   { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.12); }
+@property --frameA { syntax: "<color>"; inherits: true; initial-value: #2b2f3d; }
+@property --frameB { syntax: "<color>"; inherits: true; initial-value: #0b0c12; }
+@property --stroke { syntax: "<color>"; inherits: true; initial-value: rgba(255, 255, 255, 0.85); }
+@property --shadow { syntax: "<color>"; inherits: true; initial-value: #000; }
 :root {
   --bg: #05060a;
   --ink: #e8f0ff;
   --dim: #8a93a8;
-  --cyan: #3ef2e0;
-  --violet: #9b6bff;
-  --magenta: #ff3fb4;
-  --amber: #ffb547;
+  --text2: #c9d2e6;
+  --text3: #b4bccd;
+  --accent: #3ef2e0;    /* links, prompts, carets */
+  --glow: #9b6bff;      /* soft halos and floors */
+  --hot: #ff3fb4;       /* hashes, arrows, hovers */
+  --warm: #ffb547;      /* status and notes */
   --glass: rgba(14, 16, 26, 0.42);
   --line: rgba(255, 255, 255, 0.12);
+  --frameA: #2b2f3d;    /* phone bezel gradient */
+  --frameB: #0b0c12;
+  --stroke: rgba(255, 255, 255, 0.85);   /* wordmark outline */
+  --shadow: #000;       /* wordmark offset shadow */
   --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  --theme-ease: .52s cubic-bezier(.4, 0, .2, 1);
+  transition: --bg var(--theme-ease), --ink var(--theme-ease), --dim var(--theme-ease),
+    --text2 var(--theme-ease), --text3 var(--theme-ease), --accent var(--theme-ease),
+    --glow var(--theme-ease), --hot var(--theme-ease), --warm var(--theme-ease),
+    --glass var(--theme-ease), --line var(--theme-ease), --frameA var(--theme-ease),
+    --frameB var(--theme-ease), --stroke var(--theme-ease), --shadow var(--theme-ease);
 }
+:root.theme-instant { transition: none; }
+/* Reduced motion: theme changes are a quick colour cross-fade, nothing moves */
+@media (prefers-reduced-motion: reduce) { :root { --theme-ease: .22s linear; } }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -34,8 +67,8 @@ body {
 }
 header, main, footer { position: relative; z-index: 2; }
 
-a { color: var(--cyan); text-decoration: none; }
-a:hover { color: var(--magenta); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--hot); }
 
 /* Liquid glass */
 .glass {
@@ -58,24 +91,24 @@ a:hover { color: var(--magenta); }
 .nav a { color: var(--dim); }
 .nav a:hover { color: var(--ink); }
 .mark { font-weight: 700; margin-right: auto; letter-spacing: 0.04em; }
-.caret { color: var(--cyan); animation: blink 1s steps(1) infinite; }
+.caret { color: var(--accent); animation: blink 1s steps(1) infinite; }
 
 /* Hero */
 .hero { min-height: min(92vh, 860px); display: flex; flex-direction: column; padding: 0 24px; }
 .hero-body { max-width: 1080px; width: 100%; margin: auto; padding: 8vh 0; }
-.prompt { color: var(--dim); margin: 0 0 8px; font-size: 15px; text-shadow: 0 1px 2px #000, 0 0 12px rgba(5,6,10,0.95); }
-.hero .prompt { color: #b4bccd; }
-.hero .lede { text-shadow: 0 1px 2px #000, 0 0 14px rgba(5,6,10,0.9); }
+.prompt { color: var(--dim); margin: 0 0 8px; font-size: 15px; text-shadow: 0 1px 2px #000, 0 0 12px color-mix(in srgb, var(--bg) 95%, transparent); }
+.hero .prompt { color: var(--text3); }
+.hero .lede { text-shadow: 0 1px 2px #000, 0 0 14px color-mix(in srgb, var(--bg) 90%, transparent); }
 /* Soft dark pool behind the hero copy: the lava stays vivid around it, but
    the small text never sits on its brightest bits. */
 .hero-body { position: relative; }
 .hero-body::before {
   content: ""; position: absolute; inset: 0 -60px; z-index: -1; pointer-events: none;
-  background: radial-gradient(ellipse 60% 70% at 28% 55%, rgba(5,6,10,0.72), rgba(5,6,10,0.4) 55%, transparent 80%);
+  background: radial-gradient(ellipse 60% 70% at 28% 55% in srgb, color-mix(in srgb, var(--bg) 72%, transparent), color-mix(in srgb, var(--bg) 40%, transparent) 55%, transparent 80%);
 }
-@media (max-width: 700px) { .hero-body::before { inset: 0 -24px; background: radial-gradient(ellipse 90% 60% at 40% 55%, rgba(5,6,10,0.75), rgba(5,6,10,0.4) 60%, transparent 85%); } }
-.ps1 { color: var(--cyan); }
-.cursor { display: inline-block; width: 0.6em; height: 1.1em; margin-left: 6px; vertical-align: -0.18em; background: var(--cyan); animation: blink 1s steps(1) infinite; }
+@media (max-width: 700px) { .hero-body::before { inset: 0 -24px; background: radial-gradient(ellipse 90% 60% at 40% 55% in srgb, color-mix(in srgb, var(--bg) 75%, transparent), color-mix(in srgb, var(--bg) 40%, transparent) 60%, transparent 85%); } }
+.ps1 { color: var(--accent); }
+.cursor { display: inline-block; width: 0.6em; height: 1.1em; margin-left: 6px; vertical-align: -0.18em; background: var(--accent); animation: blink 1s steps(1) infinite; }
 
 /* Graffiti-terminal wordmark: sprayed gradient fill, hard offset shadow, chromatic split */
 .tag-word {
@@ -86,12 +119,12 @@ a:hover { color: var(--magenta); }
   letter-spacing: -0.04em;
   transform: skewX(-8deg) rotate(-2deg);
   transform-origin: left bottom;
-  background: linear-gradient(100deg, var(--cyan), var(--violet) 40%, var(--magenta) 70%, var(--amber), var(--cyan));
+  background: linear-gradient(100deg, var(--accent), var(--glow) 40%, var(--hot) 70%, var(--warm), var(--accent));
   background-size: 200% 100%;
   -webkit-background-clip: text; background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 2px rgba(255,255,255,0.85);
-  filter: drop-shadow(6px 6px 0 #000) drop-shadow(0 0 28px rgba(155,107,255,0.55));
+  -webkit-text-stroke: 2px var(--stroke);
+  filter: drop-shadow(6px 6px 0 var(--shadow)) drop-shadow(0 0 28px color-mix(in srgb, var(--glow) 55%, transparent));
   animation: flow 8s linear infinite;
 }
 .tag-word::before, .tag-word::after {
@@ -100,8 +133,8 @@ a:hover { color: var(--magenta); }
   -webkit-text-stroke: 0; color: transparent;
   pointer-events: none; opacity: 0;
 }
-.tag-word::before { text-shadow: -4px 0 rgba(62,242,224,0.8); animation: glitch 3.4s steps(1) infinite; }
-.tag-word::after  { text-shadow:  4px 0 rgba(255,63,180,0.8); animation: glitch 2.7s steps(1) infinite reverse; }
+.tag-word::before { text-shadow: -4px 0 color-mix(in srgb, var(--accent) 80%, transparent); animation: glitch 3.4s steps(1) infinite; }
+.tag-word::after  { text-shadow:  4px 0 color-mix(in srgb, var(--hot) 80%, transparent); animation: glitch 2.7s steps(1) infinite reverse; }
 
 /* "AI Driven Haptic Design", spelled out once under the wordmark: the four
    initials light up in the aurora gradient and the words kick in one by one. */
@@ -110,7 +143,7 @@ a:hover { color: var(--magenta); }
   margin: 26px 0 0;
   font: 700 clamp(15px, 2.3vw, 26px)/1.15 var(--mono);
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink);
-  text-shadow: 0 1px 2px #000, 0 0 14px rgba(5,6,10,0.9);
+  text-shadow: 0 1px 2px #000, 0 0 14px color-mix(in srgb, var(--bg) 90%, transparent);
 }
 .expansion span { display: inline-block; animation: kick .55s cubic-bezier(.2,1.4,.4,1) both; }
 .expansion span:nth-child(2) { animation-delay: .12s; }
@@ -118,7 +151,7 @@ a:hover { color: var(--magenta); }
 .expansion span:nth-child(4) { animation-delay: .36s; }
 .expansion b {
   font-size: 1.36em; font-weight: 900; letter-spacing: 0;
-  color: var(--cyan);
+  color: var(--accent);
   text-shadow: 2px 2px 0 #000, 0 0 16px currentColor;
 }
 .expansion span:nth-child(2) b { color: #b99bff; }
@@ -127,30 +160,30 @@ a:hover { color: var(--magenta); }
 @keyframes kick { from { opacity: 0; transform: translateY(0.7em) skewX(-12deg); } to { opacity: 1; transform: none; } }
 
 /* Brain Kata's tagline */
-.kata-tag { margin: -4px 0 14px; color: var(--cyan); font-size: 14px; letter-spacing: 0.08em; }
+.kata-tag { margin: -4px 0 14px; color: var(--accent); font-size: 14px; letter-spacing: 0.08em; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
 .lede { max-width: 620px; font-size: clamp(17px, 2vw, 21px); margin: 34px 0 18px; }
 .stack { display: flex; gap: 10px; margin: 0; flex-wrap: wrap; }
-.stack span { padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; color: #b4bccd; font-size: 13px; background: rgba(5,6,10,0.8); }
+.stack span { padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--text3); font-size: 13px; background: color-mix(in srgb, var(--bg) 80%, transparent); }
 
 /* Sections */
 main { max-width: 1080px; margin: 0 auto; padding: 0 24px 80px; display: grid; gap: 40px; }
 .panel { padding: 30px 34px; }
 h2 { margin: 0 0 12px; font-size: 22px; letter-spacing: 0.02em; }
-.hash { color: var(--magenta); }
+.hash { color: var(--hot); }
 .section-title { margin: 20px 0 0; }
-#about p { margin: 0; color: #c9d2e6; max-width: 70ch; }
+#about p { margin: 0; color: var(--text2); max-width: 70ch; }
 
 /* Projects */
 #projects { display: grid; gap: 36px; }
 .project { display: grid; grid-template-columns: 1fr 1.1fr; align-items: center; gap: 12px; padding: 34px; overflow: hidden; }
 .project.flip .project-copy { order: 2; }
-.meta { margin: 0 0 6px; color: var(--cyan); font-size: 13px; }
+.meta { margin: 0 0 6px; color: var(--accent); font-size: 13px; }
 .meta::before { content: "// "; color: var(--dim); }
 h3 { margin: 0 0 12px; font-size: 30px; letter-spacing: -0.01em; }
-.project-copy p:last-child { color: #c9d2e6; margin: 0; }
+.project-copy p:last-child { color: var(--text2); margin: 0; }
 
 /* 3D rotating carousel (angle driven by adhd.js; hover pauses) */
 .carousel {
@@ -170,26 +203,26 @@ h3 { margin: 0 0 12px; font-size: 30px; letter-spacing: -0.01em; }
   left: -86px; top: 0;
   border-radius: 30px;
   padding: 7px;
-  background: linear-gradient(160deg, #2b2f3d, #0b0c12);
+  background: linear-gradient(160deg, var(--frameA), var(--frameB));
   border: 1px solid rgba(255,255,255,0.22);
   box-shadow: 0 0 0 1px #000, 0 18px 40px rgba(0,0,0,0.55);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-.phone img, .phone video { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 23px; background: #0b0c12; }
+.phone img, .phone video { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 23px; background: var(--frameB); }
 .phone::after {
   content: ""; position: absolute; inset: 7px; border-radius: 23px; pointer-events: none;
   background: linear-gradient(115deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 38%);
 }
 .floor {
   position: absolute; left: 10%; right: 10%; bottom: 8px; height: 40px;
-  background: radial-gradient(ellipse at center, rgba(155,107,255,0.45), rgba(62,242,224,0.12) 45%, transparent 70%);
+  background: radial-gradient(ellipse at center in srgb, color-mix(in srgb, var(--glow) 45%, transparent), color-mix(in srgb, var(--accent) 12%, transparent) 45%, transparent 70%);
   filter: blur(8px);
 }
 
 /* Project links: title, "$ open" command and the whole carousel lead to the app's page */
 h3 a { color: var(--ink); }
-h3 a:hover { color: var(--cyan); }
+h3 a:hover { color: var(--accent); }
 .project-copy p.open { margin: 18px 0 0; }
 .open a {
   display: inline-flex; gap: 8px; align-items: center;
@@ -197,23 +230,27 @@ h3 a:hover { color: var(--cyan); }
   background: rgba(0,0,0,0.35); color: var(--ink); font-size: 14px;
   transition: border-color .2s, background .2s;
 }
-.open a:hover { color: var(--ink); border-color: rgba(62,242,224,0.6); background: rgba(62,242,224,0.08); }
+.open a:hover { color: var(--ink); border-color: color-mix(in srgb, var(--accent) 60%, transparent); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 /* Transparent layer over the ring: clicking anywhere on the carousel opens the page.
    Mouse hover still reaches .carousel, so the ring keeps its pause-on-hover. */
 .carousel-link { position: absolute; inset: 0; z-index: 3; border-radius: 22px; }
 .carousel-link span {
   position: absolute; right: 14px; bottom: 14px;
   padding: 4px 10px; border-radius: 999px; font-size: 12px;
-  color: var(--ink); background: rgba(5,6,10,0.7); border: 1px solid var(--line);
+  color: var(--ink); background: color-mix(in srgb, var(--bg) 70%, transparent); border: 1px solid var(--line);
   opacity: 0; transform: translateY(4px); transition: opacity .2s, transform .2s;
 }
 .carousel-link:hover span, .carousel-link:focus-visible span { opacity: 1; transform: none; }
-.carousel-link:focus-visible { outline: 2px solid var(--cyan); outline-offset: 4px; }
+.carousel-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+/* Home teaser for the design gallery */
+.teaser p { margin: 0; color: var(--text2); max-width: 70ch; }
+.teaser p.open { margin: 16px 0 0; }
 
 /* Contact */
 .links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.arrow { color: var(--magenta); }
-.todo { color: var(--amber); background: rgba(255,181,71,0.12); padding: 2px 8px; border-radius: 6px; }
+.arrow { color: var(--hot); }
+.todo { color: var(--warm); background: color-mix(in srgb, var(--warm) 12%, transparent); padding: 2px 8px; border-radius: 6px; }
 
 footer { text-align: center; padding: 28px 24px 44px; color: var(--dim); font-size: 13px; }
 footer .sep { margin: 0 6px; }
@@ -234,6 +271,10 @@ footer .sep { margin: 0 6px; }
   .nav { gap: 14px; font-size: 13px; }
 }
 
+/* Very narrow phones: the home nav has four links now, keep it on one line */
+@media (max-width: 400px) { .nav { gap: 11px; padding: 12px 16px; font-size: 12.5px; } }
+
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .caret, .cursor, .tag-word, .tag-word::before, .tag-word::after, .expansion span { animation: none; }
 }
