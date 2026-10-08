@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en" data-theme="brainKata">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Development Updates · Brain Kata · ADHD</title>
+  <meta name="description" content="Brain Kata development updates: new app previews, what is built, and what still needs testing.">
+  <link rel="canonical" href="https://cburr1844.github.io/brain-kata/updates/">
+  <meta name="theme-color" content="#070a18">
+  <link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../style.css"><link rel="stylesheet" href="../../app.css">
+</head>
+<body>
+  <canvas id="field" aria-hidden="true"></canvas><div class="scanlines" aria-hidden="true"></div>
+  <header class="hero app-hero">
+    <nav class="glass nav">
+      <a class="mark" href="../../index.html">adhd<span class="caret">_</span></a>
+      <a href="../index.html">brain kata</a><a href="../support/index.html">support</a><a href="../privacy/index.html">privacy</a>
+    </nav>
+    <div class="app-hero-body">
+      <div class="app-hero-copy">
+        <p class="prompt"><span class="ps1">~/adhd/brain-kata $</span> git log --progress</p>
+        <h1 class="app-title">IN<br>PROGRESS</h1>
+        <p class="lede">What's changed, what you can see, and what still needs testing. A development journal, not a promise of release dates.</p>
+        <p class="status-line"><span class="dot" aria-hidden="true"></span> private internal beta · no public download yet</p>
+      </div>
+      <div class="hero-stage"><figure class="hero-phone"><img src="../../assets/shots/brain-kata-b2-today.jpg" alt="Brain Kata Today with the new rotating woodblock artwork"><div class="hero-floor" aria-hidden="true"></div></figure></div>
+    </div>
+  </header>
+  <main>
+    <article id="build-2" class="glass panel status">
+      <h2><span class="hash">#</span> October 7, 2026 · 1.0 (2)</h2>
+      <p><strong>Uploaded for internal TestFlight processing.</strong> This is not an App Store release or an open beta. Upload acceptance does not mean processing or tester access is complete.</p>
+      <p>The new candidate combines the recent work into one build:</p>
+      <ul>
+        <li><strong>Braino warm-ups:</strong> a skippable animated scene with a thought cloud, blue mountains and a grassy path.</li>
+        <li><strong>Rotating Today artwork:</strong> 32 accepted scenes in the existing picture slot, with slow transitions and a Reduce Motion still.</li>
+        <li><strong>Rewards:</strong> bricks for scheduled reviews, belts for training days, a rest-day token and a wisdom scroll of collected quotes.</li>
+        <li><strong>iCloud Drive backup:</strong> opt-in backup and restore to the user's own iCloud, off by default. Not live sync; real-device verification remains pending.</li>
+        <li><strong>A clearer tour:</strong> small callouts anchored to controls, plus a tab bar that reserves its own space instead of floating over text.</li>
+      </ul>
+      <p><strong>Verified:</strong> 163 automated tests pass on the combined candidate. Simulator build, Release archive and distribution signatures passed. Sample-data screenshots show the integrated Today and Progress screens.</p>
+      <p><strong>Still on the test list:</strong> end-to-end live iCloud backup/restore, touch navigation, VoiceOver, iPad layouts and device performance. The rest-token Progress streak can differ from the older strict-streak encouragement message; artwork currently continues rotating beneath a study sheet.</p>
+      <p>The screenshot gallery uses simulator sample data. The belt celebration is an illustrative milestone, and the warm-up clip is held open for demonstration. These aren't claims of real user progress.</p>
+      <p><a href="../index.html#gallery">See the new screenshots &rarr;</a></p>
+    </article>
+    <section class="glass panel status">
+      <h2><span class="hash">#</span> links &amp; feedback</h2>
+      <p><a href="../support/index.html">Support and feedback</a> · <a href="../privacy/index.html">Privacy policy</a> · <a href="../index.html">Brain Kata overview</a></p>
+      <p><a href="https://apps.apple.com/us/app/testflight/id899247664">Apple TestFlight</a> is the testing app for people with a private invitation. It is not a public Brain Kata invitation.</p>
+      <p><a href="../../gate-relay/index.html">Gate Relay</a> · <a href="../../gallery/index.html">Design gallery</a> · <a href="https://github.com/CBURR1844">GitHub profile</a></p>
+    </section>
+  </main>
+  <footer>© 2026 ADHD · AI Driven Haptic Design · <a href="mailto:cramirez18444@gmail.com">Contact</a></footer>
+  <script src="../../adhd.js"></script>
+</body>
+</html>
